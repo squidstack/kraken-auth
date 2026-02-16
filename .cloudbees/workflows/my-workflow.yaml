@@ -18,7 +18,7 @@ env:
 
 jobs:
   test:
-    uses: github.com/cb-squidstack/cb-squidstack/.cloudbees/workflows/test-generic.yaml@main
+    uses: github.com/squidstack/squidstack/.cloudbees/workflows/test-generic.yaml@main
     with:
       app_name: kraken-auth
       language: go
@@ -30,7 +30,7 @@ jobs:
 
   build:
    
-    uses: github.com/cb-squidstack/cb-squidstack/.cloudbees/workflows/build-generic.yaml@main
+    uses: github.com/squidstack/squidstack/.cloudbees/workflows/build-generic.yaml@main
     with:
       app_name: kraken-auth
       docker_user: ${{ vars.DOCKER_USER }}
@@ -42,7 +42,7 @@ jobs:
   deployDev:
     if: ${{ cloudbees.scm.branch != 'main' }}
     environment: squid-dev
-    uses: github.com/cb-squidstack/cb-squidstack/.cloudbees/workflows/deploy-generic.yaml@main
+    uses: github.com/squidstack/squidstack/.cloudbees/workflows/deploy-generic.yaml@main
     needs: [test, build]
     with:
       environment_name: squid-dev
@@ -61,7 +61,7 @@ jobs:
   deployPreProd:
     if: ${{ cloudbees.scm.branch == 'main' }}
     environment: squid-preprod
-    uses: github.com/cb-squidstack/cb-squidstack/.cloudbees/workflows/deploy-generic.yaml@main
+    uses: github.com/squidstack/squidstack/.cloudbees/workflows/deploy-generic.yaml@main
     needs: [test, build]
     with:
       environment_name: squid-preprod
@@ -80,7 +80,7 @@ jobs:
   deployProd:
     if: ${{ cloudbees.scm.branch == 'main' }}
     environment: squid-prod
-    uses: github.com/cb-squidstack/cb-squidstack/.cloudbees/workflows/deploy-generic.yaml@main
+    uses: github.com/squidstack/squidstack/.cloudbees/workflows/deploy-generic.yaml@main
     needs: [test, build, deployPreProd]
     with:
       environment_name: squid-prod
@@ -98,7 +98,7 @@ jobs:
   triggerRelease:
     if: false  # Disabled to avoid Unify rate limits - change to 'cloudbees.scm.branch == main' to enable
     needs: [test, build, deployPreProd]
-    uses: github.com/cb-squidstack/cb-squidstack/.cloudbees/workflows/release-generic.yaml@main
+    uses: github.com/squidstack/squidstack/.cloudbees/workflows/release-generic.yaml@main
     with:
       component_name: kraken-auth
       component_id: "2dc859d8-f3e1-44ca-9160-6e86a8077aab"
