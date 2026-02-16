@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ default 1 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "app.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: "{{ default "IfNotPresent" .Values.image.pullPolicy }}"
+          ports:
+            - name: http
+              containerPort: 8080
+
+          {{- $security := .Values.security | default dict }}
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-secrets" (include "app.fullname" .)) $security.existingSecret }}
+                  key: {{ default "JWT_SECRET" $security.existingSecretKey }}
+            - name: AUTH_DB_URL
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_URL } }
+            - name: AUTH_DB_USER
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_USER } }
+            - name: AUTH_DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_PASSWORD } }
+            {{- if .Values.featureFlags.enabled }}
+            - name: FM_NAMESPACE
+              value: {{ default "kraken" .Values.featureFlags.namespace | quote }}
+            {{- end }}
+
+          {{- $probes := .Values.probes | default dict }}
+          {{- $readiness := $probes.readiness | default dict }}
+          {{- $liveness  := $probes.liveness  | default dict }}
+
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            # e.g. ~60s budget (10 tries x 6s)
+            periodSeconds: 6
+            failureThreshold: 10
+
+          readinessProbe:
+            httpGet:
+              path: {{ default "/health" $readiness.path | quote }}
+              port: http
+            initialDelaySeconds: {{ default 2  $readiness.initialDelaySeconds }}
+            periodSeconds:        {{ default 5  $readiness.periodSeconds }}
+            timeoutSeconds:       {{ default 1  $readiness.timeoutSeconds }}
+            failureThreshold:     {{ default 3  $readiness.failureThreshold }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ default "/health" $liveness.path | quote }}
+              port: http
+            initialDelaySeconds: {{ default 5  $liveness.initialDelaySeconds }}
+            periodSeconds:        {{ default 10 $liveness.periodSeconds }}
+            timeoutSeconds:       {{ default 1  $liveness.timeoutSeconds }}
+            failureThreshold:     {{ default 3  $liveness.failureThreshold }}
+
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+
+          {{- if .Values.featureFlags.enabled }}
+          volumeMounts:
+            - name: fm-secret
+              mountPath: {{ .Values.featureFlags.mountPath }}
+              readOnly: true
+          {{- end }}
+
+      {{- if .Values.featureFlags.enabled }}
+      volumes:
+        - name: fm-secret
+          secret:
+            secretName: {{ .Values.featureFlags.secretName }}
+            items:
+              - key: {{ .Values.featureFlags.secretKey }}
+                path: {{ .Values.featureFlags.fileName }}
+      {{- end }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+

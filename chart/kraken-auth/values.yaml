@@ -1,0 +1,133 @@
+# -- Container image
+image:
+  repository: gururepservice/kraken-auth
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# -- No ingress for this service
+ingress:
+  enabled: false
+
+# -- Service details (ClusterIP only)
+service:
+  type: ClusterIP
+  port: 8080
+  annotations: {}
+
+# -- Pod labels/annotations
+podLabels: {}
+podAnnotations: {}
+
+# -- Resources (tune as needed)
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# -- Probes (kraken-auth exposes /health)
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  readiness:            # fixed: removed stray "readiness:" key
+    path: /ready
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 12
+
+# -- ServiceAccount (optional)
+serviceAccount:
+  create: false
+  name: ""
+  annotations: {}
+
+# -- SecurityContext (optional)
+podSecurityContext: {}
+securityContext: {}
+
+# -- JWT secret management
+security:
+  # If true, this chart creates a Secret named <release>-jwt with key `JWT_SECRET`
+  createSecret: true
+
+  # If createSecret is true, set the secret value here for quick starts (use stringData)
+  # For real deployments, prefer existingSecret or a secure external secret manager.
+  jwtSecret: "change-me-in-nonprod"
+
+  # If you already have a Secret, put its name here and set createSecret: false
+  existingSecret: ""
+  existingSecretKey: JWT_SECRET
+
+# -- DB selection toggle (external vs bundled)
+useExternalDb: false
+
+# -- Bitnami PostgreSQL subchart values
+postgresql:
+  enabled: false                     # true for demo/self-contained envs
+
+  auth:
+    username: squid
+    password: squidpw
+    database: squid_auth
+
+  # top-level network policy flag retained
+  networkPolicy:
+    enabled: false
+
+  serviceAccount:
+    create: false
+
+  # cluster-level PDB flag retained
+  pdb:
+    create: false
+
+  # primary node settings (merged duplicates here)
+  primary:
+    pdb:
+      create: false
+    persistence:
+      enabled: true
+      size: 1Gi
+    networkPolicy:
+      enabled: false
+
+  # read-replica settings
+  readReplicas:
+    pdb:
+      create: false
+    networkPolicy:
+      enabled: false
+
+# -- External DB (when not using bundled Postgres)
+externalDb:
+  host: ""                  # set by Unify in preprod/prod
+  port: 5432
+  database: squid_auth
+  username: ""
+  password: ""
+
+# -- Liquibase runner/evidence job
+liquibase:
+  image: liquibase/liquibase:4.27
+  changelogFile: changelog-root.xml
+
+  db:
+    host: kraken-auth-postgresql
+    port: 5432
+
+# --- Feature Management (CloudBees FM) ---
+featureFlags:
+  enabled: false
+  secretName: feature-mgmt     # must match the existing Secret name
+  secretKey: FM_KEY            # key inside that Secret
+  mountPath: /app/config       # where to mount in the container
+  fileName: fm.json            # file name in the container (will contain the raw key)
+  createSecret: true           # do NOT create; we’re using existing
+  # Namespace prefix for CloudBees FM flags
+  namespace: kraken

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+  <changeSet id="0006-create-user-profile-roles" author="squidstack">
+    <createTable tableName="user_profile_roles" schemaName="public">
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="role_id" type="int">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Composite PK must be added with a separate change -->
+    <addPrimaryKey
+      tableName="user_profile_roles"
+      schemaName="public"
+      columnNames="user_id, role_id"
+      constraintName="pk_user_profile_roles"/>
+
+    <addForeignKeyConstraint
+      baseTableSchemaName="public" baseTableName="user_profile_roles" baseColumnNames="user_id"
+      referencedTableSchemaName="auth" referencedTableName="users" referencedColumnNames="id"
+      constraintName="fk_upr_user"/>
+
+    <addForeignKeyConstraint
+      baseTableSchemaName="public" baseTableName="user_profile_roles" baseColumnNames="role_id"
+      referencedTableSchemaName="auth" referencedTableName="roles" referencedColumnNames="id"
+      constraintName="fk_upr_role"/>
+
+    <createIndex tableName="user_profile_roles" schemaName="public" indexName="idx_upr_user">
+      <column name="user_id"/>
+    </createIndex>
+    <createIndex tableName="user_profile_roles" schemaName="public" indexName="idx_upr_role">
+      <column name="role_id"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

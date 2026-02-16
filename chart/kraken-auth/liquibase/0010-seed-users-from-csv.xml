@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+  <!-- 1) users (admintest) -->
+  <changeSet id="0010-01-insert-users" author="stu">
+    <preConditions onFail="MARK_RAN">
+      <tableExists schemaName="auth" tableName="users"/>
+    </preConditions>
+    <loadData file="seed-users.csv" separator="," tableName="users" schemaName="auth" relativeToChangelogFile="true">
+      <column name="id" type="UUID"/>
+      <column name="username" type="STRING"/>
+    </loadData>
+  </changeSet>
+
+  <!-- 2) auth_credentials (bcrypt hash preserved exactly as in your CSV) -->
+  <changeSet id="0010-02-insert-auth-credentials" author="stu">
+    <preConditions onFail="HALT">
+      <tableExists schemaName="auth" tableName="auth_credentials"/>
+      <sqlCheck expectedResult="1">
+        SELECT COUNT(*) FROM auth.users WHERE id = 'dc4aaa11-38cf-470c-8873-85c7e34d041d'
+      </sqlCheck>
+    </preConditions>
+    <loadData file="auth_credentials.csv" separator="," tableName="auth_credentials" schemaName="auth" relativeToChangelogFile="true">
+      <column name="id" type="UUID"/>
+      <column name="user_id" type="UUID"/>
+      <column name="password_hash" type="STRING"/>
+      <column name="password_algo" type="STRING"/>
+    </loadData>
+  </changeSet>
+
+  <!-- 3) user_profiles (includes roles text[] = "{admin}") -->
+  <changeSet id="0010-03-insert-user-profiles" author="stu">
+    <preConditions onFail="MARK_RAN">
+      <tableExists schemaName="public" tableName="user_profiles"/>
+    </preConditions>
+    <loadData file="user_profiles.csv" separator="," tableName="user_profiles" schemaName="public" relativeToChangelogFile="true">
+      <column name="user_id" type="UUID"/>
+      <column name="full_name" type="STRING"/>
+      <column name="email" type="STRING"/>
+      <column name="phone_number" type="STRING"/>
+      <column name="address" type="STRING"/>
+      <column name="country_code" type="STRING"/>
+      <!-- Postgres will cast this STRING literal to text[] (e.g., "{admin}") -->
+      <column name="roles" type="STRING"/>
+    </loadData>
+  </changeSet>
+
+</databaseChangeLog>

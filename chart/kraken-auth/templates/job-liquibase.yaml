@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.fullname" . }}-liquibase
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+
+      initContainers:
+        - name: wait-for-db
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DB_HOST
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_HOST } }
+            - name: DB_PORT
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_PORT } }
+          command: ["/bin/sh","-lc"]
+          args:
+            - |
+              echo "Waiting for DB at ${DB_HOST}:${DB_PORT} ..."
+              until pg_isready -h "${DB_HOST}" -p "${DB_PORT}"; do
+                echo "still waiting..."; sleep 3
+              done
+              echo "DB is reachable."
+      
+      
+      containers:
+        - name: liquibase
+          image: {{ .Values.liquibase.image }}
+          imagePullPolicy: IfNotPresent
+          workingDir: /liquibase/changelog
+          env:
+            - name: LIQUIBASE_URL
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_URL } }
+            - name: LIQUIBASE_USERNAME
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_USER } }
+            - name: LIQUIBASE_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ include "app.fullname" . }}-db, key: AUTH_DB_PASSWORD } }
+          command: ["/bin/sh","-lc"]
+          args:
+            - |
+              set -e
+              echo "Listing /liquibase ..."
+              ls -al /liquibase || true
+              echo "Listing /liquibase/changelog ..."
+              ls -al /liquibase/changelog || true
+
+              echo "Running Liquibase..."
+              liquibase \
+                --changelog-file={{ .Values.liquibase.changelogFile | default "changelog-root.xml" }} \
+                --url="${LIQUIBASE_URL}" \
+                --username="${LIQUIBASE_USERNAME}" \
+                --password="${LIQUIBASE_PASSWORD}" \
+                update
+
+          volumeMounts:
+            - name: liquibase-changelog
+              mountPath: /liquibase/changelog
+              readOnly: true
+            - name: db-props
+              mountPath: /db
+              readOnly: true
+
+      volumes:
+        - name: liquibase-changelog
+          configMap:
+            name: {{ include "app.fullname" . }}-liquibase
+        - name: db-props
+          projected:
+            sources:
+              - secret:
+                  name: {{ include "app.fullname" . }}-db
+                  items:
+                    - key: AUTH_DB_HOST
+                      path: AUTH_DB_HOST
+                    - key: AUTH_DB_PORT
+                      path: AUTH_DB_PORT

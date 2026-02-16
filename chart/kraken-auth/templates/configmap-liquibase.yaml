@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app.fullname" . }}-liquibase
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  {{- $all := .Files.Glob "liquibase/**" -}}
+  {{- if not $all }}
+  {{- fail "No liquibase files found under chart path 'liquibase/'. Place changelogs there." }}
+  {{- end }}
+  {{- range $path, $_ := $all }}
+  {{ base $path }}: |-
+{{- $.Files.Get $path | trim | nindent 4 }}
+  {{- end }}

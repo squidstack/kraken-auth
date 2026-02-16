@@ -1,0 +1,2 @@
+user_id,full_name,email,phone_number,address,country_code,roles
+dc4aaa11-38cf-470c-8873-85c7e34d041d,Admin Test,admin@example.com,,,GB,"{admin}"

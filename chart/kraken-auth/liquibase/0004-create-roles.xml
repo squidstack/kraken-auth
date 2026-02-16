@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+  <changeSet id="0004-create-roles" author="squidstack">
+    <createTable tableName="roles" schemaName="auth">
+      <column name="id" type="serial">
+        <constraints primaryKey="true" primaryKeyName="pk_auth_roles" nullable="false"/>
+      </column>
+      <column name="name" type="varchar(100)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="uq_auth_roles_name"/>
+      </column>
+      <column name="created_at" type="timestamptz"/>
+      <column name="updated_at" type="timestamptz"/>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <include file="0001-create-auth-schema.xml" relativeToChangelogFile="true"/>
+    <include file="0002-create-users.xml" relativeToChangelogFile="true"/>
+    <include file="0003-create-auth-credentials.xml" relativeToChangelogFile="true"/>
+    <include file="0004-create-roles.xml" relativeToChangelogFile="true"/>
+    <include file="0005-create-user-profiles.xml" relativeToChangelogFile="true"/>
+    <!-- 0006 is kept (join table). Not used by code, but harmless and future-proof. -->
+    <include file="0006-create-user-profile-roles.xml" relativeToChangelogFile="true"/>
+    <include file="0007-create-countries.xml" relativeToChangelogFile="true"/>
+    <include file="0008-seed-countries.xml" relativeToChangelogFile="true"/>
+    <include file="0009-seed-roles.xml" relativeToChangelogFile="true"/>
+    <include file="0010-seed-users-from-csv.xml" relativeToChangelogFile="true"/>
+    <include file="0012-add-beta-roles-and-users.xml" relativeToChangelogFile="true"/>
+    <include file="0013-add-eu-users-from-csv.xml" relativeToChangelogFile="true"/>
+    <include file="0014-add-eu-credentials-and-roles.xml" relativeToChangelogFile="true"/>
+    <include file="0015-seed-users-na-apac-me-from-csv.xml" relativeToChangelogFile="true"/>
+    <include file="0016-add-na-apac-me-credentials-and-roles.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
