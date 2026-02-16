@@ -79,7 +79,7 @@ spec:
     spec:
       containers:
         - name: kraken-auth
-          image: "gururepservice/kraken-auth:latest"
+          image: "stacksdemo/kraken-auth:latest"
           imagePullPolicy: "IfNotPresent"
           ports:
             - name: http

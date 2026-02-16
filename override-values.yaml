@@ -1,7 +1,7 @@
 # override-values.yaml
 
 image:
-  repository: gururepservice/kraken-auth
+  repository: stacksdemo/kraken-auth
   tag: latest
   pullPolicy: Always
 
