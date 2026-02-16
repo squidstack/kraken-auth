@@ -1,0 +1,7 @@
+user_id,full_name,email,phone_number,address,country_code,roles
+7250db67-a626-5960-8314-4eb38ad1f9cb,François Leroux,francois.leroux@squidstack.test,+33 1 86 95 00 10,"12 Rue de Rivoli, 75001 Paris, France",FR,{user}
+92c1b8ab-168f-5ca3-9414-e64ffc8a6d8b,Camille Dubois,camille.dubois@squidstack.test,+33 4 28 29 10 20,"18 Quai Saint-Antoine, 69002 Lyon, France",FR,{user}
+e3d81eb1-230f-561b-a70e-a86db96ade66,Carlos Navarro,carlos.navarro@squidstack.test,+34 91 123 45 67,"Calle de Alcalá 45, 28014 Madrid, Spain",ES,{user}
+3d892715-8d0b-5b3b-bd83-491ecb362adf,Sofía Martínez,sofia.martinez@squidstack.test,+34 93 456 78 90,"Passeig de Gràcia 22, 08007 Barcelona, Spain",ES,{user}
+183ee631-5184-56dd-9893-d368cbe12a34,Lukas Schneider,lukas.schneider@squidstack.test,+49 30 12345670,"Friedrichstr. 90, 10117 Berlin, Germany",DE,{user}
+181629c1-c97a-5a58-bbdd-5d037a00562c,Mia Fischer,mia.fischer@squidstack.test,+49 89 12345671,"Leopoldstr. 23, 80802 München, Germany",DE,{user}

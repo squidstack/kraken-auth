@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+  <!-- EXACTLY like 0013: first users, then profiles -->
+  <changeSet id="0015-01-load-users-na-apac-me" author="squidstack">
+    <preConditions onFail="MARK_RAN">
+      <tableExists schemaName="auth" tableName="users"/>
+    </preConditions>
+    <loadData file="users-na-apac-me.csv"
+              separator=","
+              tableName="users"
+              schemaName="auth"
+              relativeToChangelogFile="true">
+      <column name="id" type="UUID"/>
+      <column name="username" type="STRING"/>
+    </loadData>
+  </changeSet>
+
+  <changeSet id="0015-02-load-profiles-na-apac-me" author="squidstack">
+    <preConditions onFail="MARK_RAN">
+      <tableExists schemaName="public" tableName="user_profiles"/>
+    </preConditions>
+    <loadData file="user_profiles-na-apac-me.csv"
+              separator=","
+              tableName="user_profiles"
+              schemaName="public"
+              relativeToChangelogFile="true">
+      <column name="user_id" type="UUID"/>
+      <column name="full_name" type="STRING"/>
+      <column name="email" type="STRING"/>
+      <column name="phone_number" type="STRING"/>
+      <column name="address" type="STRING"/>
+      <column name="country_code" type="STRING"/>
+      <column name="roles" type="STRING"/>
+    </loadData>
+  </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,185 @@
+---
+# Source: kraken-auth/templates/secret-db.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kraken-auth-db
+type: Opaque
+data:
+  AUTH_DB_HOST: 
+  AUTH_DB_PORT: NTQzMg==
+  AUTH_DB_NAME: c3F1aWRfYXV0aA==
+  AUTH_DB_USER: 
+  AUTH_DB_PASSWORD: 
+  AUTH_DB_URL: amRiYzpwb3N0Z3Jlc3FsOi8vOjU0MzIvc3F1aWRfYXV0aA==
+---
+# Source: kraken-auth/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kraken-auth-jwt
+  labels:
+    app.kubernetes.io/name: kraken-auth
+    helm.sh/chart: kraken-auth-0.1.0
+    app.kubernetes.io/instance: kraken-auth
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  JWT_SECRET: "change-me-in-nonprod"
+---
+# Source: kraken-auth/templates/configmap-liquibase.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kraken-auth-liquibase
+data:
+  changelog-root.xml: |-
+---
+# Source: kraken-auth/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kraken-auth
+  labels:
+    app.kubernetes.io/name: kraken-auth
+    helm.sh/chart: kraken-auth-0.1.0
+    app.kubernetes.io/instance: kraken-auth
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: kraken-auth
+    app.kubernetes.io/instance: kraken-auth
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Source: kraken-auth/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kraken-auth
+  labels:
+    app.kubernetes.io/name: kraken-auth
+    helm.sh/chart: kraken-auth-0.1.0
+    app.kubernetes.io/instance: kraken-auth
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kraken-auth
+      app.kubernetes.io/instance: kraken-auth
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kraken-auth
+        app.kubernetes.io/instance: kraken-auth
+    spec:
+      containers:
+        - name: kraken-auth
+          image: "gururepservice/kraken-auth:latest"
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kraken-auth-secrets
+                  key: JWT_SECRET
+            - name: AUTH_DB_URL
+              valueFrom: { secretKeyRef: { name: kraken-auth-db, key: AUTH_DB_URL } }
+            - name: AUTH_DB_USER
+              valueFrom: { secretKeyRef: { name: kraken-auth-db, key: AUTH_DB_USER } }
+            - name: AUTH_DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: kraken-auth-db, key: AUTH_DB_PASSWORD } }
+
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds:        5
+            timeoutSeconds:       1
+            failureThreshold:     3
+
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds:        10
+            timeoutSeconds:       2
+            failureThreshold:     3
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+---
+# Source: kraken-auth/templates/job-liquibase.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kraken-auth-liquibase
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: liquibase
+          image: liquibase/liquibase:4.27
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LIQUIBASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: kraken-auth-db
+                  key: AUTH_DB_URL
+            - name: LIQUIBASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kraken-auth-db
+                  key: AUTH_DB_USER
+            - name: LIQUIBASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kraken-auth-db
+                  key: AUTH_DB_PASSWORD
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              sleep 10
+              liquibase --changelog-file=changelog-root.xml --url="${LIQUIBASE_URL}" --username="${LIQUIBASE_USERNAME}" --password="${LIQUIBASE_PASSWORD}" --retries=20 --delay=5 update
+          volumeMounts:
+            - name: liquibase-changelog
+              mountPath: /liquibase/changelog
+              readOnly: true
+            - name: db-props
+              mountPath: /db
+              readOnly: true
+      volumes:
+        - name: liquibase-changelog
+          configMap:
+            name: kraken-auth-liquibase
+        - name: db-props
+          projected:
+            sources:
+              - secret:
+                  name: kraken-auth-db
+                  items:
+                    - key: AUTH_DB_HOST
+                      path: AUTH_DB_HOST
+                    - key: AUTH_DB_PORT
+                      path: AUTH_DB_PORT

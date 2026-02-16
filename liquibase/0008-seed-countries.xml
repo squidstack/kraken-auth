@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+  <changeSet id="0008-seed-countries" author="squidstack">
+    <loadData
+      tableName="countries"
+      schemaName="public"
+      file="countries.xml"
+      relativeToChangelogFile="true"
+      separator=",">
+      <column name="code" type="string"/>
+      <column name="name" type="string"/>
+      <column name="restricted" type="boolean"/>
+      <column name="can_ship" type="boolean"/>
+    </loadData>
+  </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+  <!-- 0013-01: Load EU users (auth.users: id, username) -->
+  <changeSet id="0013-01-load-users-eu" author="squidstack">
+    <preConditions onFail="MARK_RAN">
+      <tableExists schemaName="auth" tableName="users"/>
+    </preConditions>
+    <loadData file="users-eu.csv" separator="," tableName="users" schemaName="auth" relativeToChangelogFile="true">
+      <column name="id" type="UUID"/>
+      <column name="username" type="STRING"/>
+    </loadData>
+    <rollback>
+      <delete tableName="users" schemaName="auth">
+        <where>id IN (
+          '7250db67-a626-5960-8314-4eb38ad1f9cb',
+          '92c1b8ab-168f-5ca3-9414-e64ffc8a6d8b',
+          'e3d81eb1-230f-561b-a70e-a86db96ade66',
+          '3d892715-8d0b-5b3b-bd83-491ecb362adf',
+          '183ee631-5184-56dd-9893-d368cbe12a34',
+          '181629c1-c97a-5a58-bbdd-5d037a00562c'
+        )</where>
+      </delete>
+    </rollback>
+  </changeSet>
+
+  <!-- 0013-02: Load EU profiles (public.user_profiles) -->
+  <changeSet id="0013-02-load-profiles-eu" author="squidstack">
+    <preConditions onFail="MARK_RAN">
+      <tableExists schemaName="public" tableName="user_profiles"/>
+    </preConditions>
+    <loadData file="user_profiles-eu.csv" separator="," tableName="user_profiles" schemaName="public" relativeToChangelogFile="true">
+      <column name="user_id" type="UUID"/>
+      <column name="full_name" type="STRING"/>
+      <column name="email" type="STRING"/>
+      <column name="phone_number" type="STRING"/>
+      <column name="address" type="STRING"/>
+      <column name="country_code" type="STRING"/>
+      <column name="roles" type="STRING"/>
+    </loadData>
+    <rollback>
+      <delete tableName="user_profiles" schemaName="public">
+        <where>user_id IN (
+          '7250db67-a626-5960-8314-4eb38ad1f9cb',
+          '92c1b8ab-168f-5ca3-9414-e64ffc8a6d8b',
+          'e3d81eb1-230f-561b-a70e-a86db96ade66',
+          '3d892715-8d0b-5b3b-bd83-491ecb362adf',
+          '183ee631-5184-56dd-9893-d368cbe12a34',
+          '181629c1-c97a-5a58-bbdd-5d037a00562c'
+        )</where>
+      </delete>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

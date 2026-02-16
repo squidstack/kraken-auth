@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+  <changeSet id="0012-add-beta-roles-and-users" author="squidstack">
+    <sql><![CDATA[
+-- Adds beta roles and 3 users (storeadmin, betauser, betaadmin)
+-- Reuses admintest's password hash/algo; idempotent via NOT EXISTS.
+
+---------------------------------------
+-- 0) Ensure base roles exist, then add the new ones
+---------------------------------------
+INSERT INTO auth.roles (id, name, created_at, updated_at)
+SELECT 1, 'admin', now(), now()
+WHERE NOT EXISTS (SELECT 1 FROM auth.roles WHERE name='admin');
+
+INSERT INTO auth.roles (id, name, created_at, updated_at)
+SELECT 2, 'user', now(), now()
+WHERE NOT EXISTS (SELECT 1 FROM auth.roles WHERE name='user');
+
+INSERT INTO auth.roles (id, name, created_at, updated_at)
+SELECT 3, 'storeadmin', now(), now()
+WHERE NOT EXISTS (SELECT 1 FROM auth.roles WHERE name='storeadmin');
+
+-- New roles
+INSERT INTO auth.roles (name, created_at, updated_at)
+SELECT 'betauser', now(), now()
+WHERE NOT EXISTS (SELECT 1 FROM auth.roles WHERE name='betauser');
+
+INSERT INTO auth.roles (name, created_at, updated_at)
+SELECT 'betaadmin', now(), now()
+WHERE NOT EXISTS (SELECT 1 FROM auth.roles WHERE name='betaadmin');
+
+-- keep the sequence in sync regardless of ids present
+SELECT setval('auth.roles_id_seq', (SELECT COALESCE(MAX(id), 1) FROM auth.roles));
+
+---------------------------------------
+-- 1) Users
+---------------------------------------
+INSERT INTO auth.users (id, username)
+SELECT '70a0b001-1111-4111-8111-aaaaaaaa0001', 'storeadmin'
+WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE username='storeadmin');
+
+INSERT INTO auth.users (id, username)
+SELECT '70a0b002-2222-4222-8222-aaaaaaaa0002', 'betauser'
+WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE username='betauser');
+
+INSERT INTO auth.users (id, username)
+SELECT '70a0b003-3333-4333-8333-aaaaaaaa0003', 'betaadmin'
+WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE username='betaadmin');
+
+---------------------------------------
+-- 2) Credentials: copy admintest hash/algo
+---------------------------------------
+WITH admin_pwd AS (
+  SELECT ac.password_hash, ac.password_algo
+    FROM auth.auth_credentials ac
+    JOIN auth.users u ON u.id = ac.user_id
+   WHERE u.username = 'admintest'
+   LIMIT 1
+)
+INSERT INTO auth.auth_credentials (id, user_id, password_hash, password_algo, created_at, updated_at)
+SELECT '71a0c001-aaaa-4aaa-8aaa-bbbbbbbb0001', '70a0b001-1111-4111-8111-aaaaaaaa0001',
+       ap.password_hash, ap.password_algo, now(), now()
+  FROM admin_pwd ap
+ WHERE NOT EXISTS (SELECT 1 FROM auth.auth_credentials WHERE user_id='70a0b001-1111-4111-8111-aaaaaaaa0001');
+
+WITH admin_pwd AS (
+  SELECT ac.password_hash, ac.password_algo
+    FROM auth.auth_credentials ac
+    JOIN auth.users u ON u.id = ac.user_id
+   WHERE u.username = 'admintest'
+   LIMIT 1
+)
+INSERT INTO auth.auth_credentials (id, user_id, password_hash, password_algo, created_at, updated_at)
+SELECT '71a0c002-bbbb-4bbb-8bbb-bbbbbbbb0002', '70a0b002-2222-4222-8222-aaaaaaaa0002',
+       ap.password_hash, ap.password_algo, now(), now()
+  FROM admin_pwd ap
+ WHERE NOT EXISTS (SELECT 1 FROM auth.auth_credentials WHERE user_id='70a0b002-2222-4222-8222-aaaaaaaa0002');
+
+WITH admin_pwd AS (
+  SELECT ac.password_hash, ac.password_algo
+    FROM auth.auth_credentials ac
+    JOIN auth.users u ON u.id = ac.user_id
+   WHERE u.username = 'admintest'
+   LIMIT 1
+)
+INSERT INTO auth.auth_credentials (id, user_id, password_hash, password_algo, created_at, updated_at)
+SELECT '71a0c003-cccc-4ccc-8ccc-bbbbbbbb0003', '70a0b003-3333-4333-8333-aaaaaaaa0003',
+       ap.password_hash, ap.password_algo, now(), now()
+  FROM admin_pwd ap
+ WHERE NOT EXISTS (SELECT 1 FROM auth.auth_credentials WHERE user_id='70a0b003-3333-4333-8333-aaaaaaaa0003');
+
+---------------------------------------
+-- 3) Profiles (public.user_profiles)
+--    Note: keep roles[] in sync with the join-table inserts (next section).
+---------------------------------------
+INSERT INTO public.user_profiles (user_id, full_name, email, phone_number, address, country_code, roles)
+SELECT '70a0b001-1111-4111-8111-aaaaaaaa0001',
+       'Store Admin', 'storeadmin@example.com', '+44 161 555 0002',
+       '45 Warehouse Road, Manchester, UK', 'GB', '{"user","storeadmin"}'::text[]
+WHERE NOT EXISTS (SELECT 1 FROM public.user_profiles WHERE user_id='70a0b001-1111-4111-8111-aaaaaaaa0001');
+
+INSERT INTO public.user_profiles (user_id, full_name, email, phone_number, address, country_code, roles)
+SELECT '70a0b002-2222-4222-8222-aaaaaaaa0002',
+       'Beta User', 'betauser@example.com', '+44 20 7946 0001',
+       '123 Demo Street, London, UK', 'GB', '{"user","betauser"}'::text[]
+WHERE NOT EXISTS (SELECT 1 FROM public.user_profiles WHERE user_id='70a0b002-2222-4222-8222-aaaaaaaa0002');
+
+INSERT INTO public.user_profiles (user_id, full_name, email, phone_number, address, country_code, roles)
+SELECT '70a0b003-3333-4333-8333-aaaaaaaa0003',
+       'Beta Admin', 'betaadmin@example.com', '+44 20 7000 0003',
+       '77 Minimal Ave, Leeds, UK', 'GB', '{"user","admin","betaadmin"}'::text[]
+WHERE NOT EXISTS (SELECT 1 FROM public.user_profiles WHERE user_id='70a0b003-3333-4333-8333-aaaaaaaa0003');
+
+---------------------------------------
+-- 4) Join table roles (public.user_profile_roles)
+---------------------------------------
+INSERT INTO public.user_profile_roles (user_id, role_id)
+SELECT '70a0b001-1111-4111-8111-aaaaaaaa0001', r.id
+FROM auth.roles r
+WHERE r.name IN ('user','storeadmin')
+  AND NOT EXISTS (
+    SELECT 1 FROM public.user_profile_roles upr
+     WHERE upr.user_id='70a0b001-1111-4111-8111-aaaaaaaa0001' AND upr.role_id=r.id
+  );
+
+INSERT INTO public.user_profile_roles (user_id, role_id)
+SELECT '70a0b002-2222-4222-8222-aaaaaaaa0002', r.id
+FROM auth.roles r
+WHERE r.name IN ('user','betauser')
+  AND NOT EXISTS (
+    SELECT 1 FROM public.user_profile_roles upr
+     WHERE upr.user_id='70a0b002-2222-4222-8222-aaaaaaaa0002' AND upr.role_id=r.id
+  );
+
+INSERT INTO public.user_profile_roles (user_id, role_id)
+SELECT '70a0b003-3333-4333-8333-aaaaaaaa0003', r.id
+FROM auth.roles r
+WHERE r.name IN ('user','admin','betaadmin')
+  AND NOT EXISTS (
+    SELECT 1 FROM public.user_profile_roles upr
+     WHERE upr.user_id='70a0b003-3333-4333-8333-aaaaaaaa0003' AND upr.role_id=r.id
+  );
+
+---------------------------------------
+-- 5) (Optional) Top up admintest profile if any fields missing
+---------------------------------------
+UPDATE public.user_profiles p
+SET full_name    = COALESCE(NULLIF(p.full_name,''), 'Admin Test'),
+    email        = COALESCE(NULLIF(p.email,''), 'admin@example.com'),
+    address      = COALESCE(NULLIF(p.address,''), '1 Admin Way, London, UK'),
+    country_code = COALESCE(NULLIF(p.country_code,''), 'GB'),
+    phone_number = COALESCE(NULLIF(p.phone_number,''), '+44 20 7000 0000')
+FROM auth.users u
+WHERE p.user_id = u.id
+  AND u.username = 'admintest';
+    ]]></sql>
+
+    <rollback><![CDATA[
+DELETE FROM public.user_profile_roles WHERE user_id IN (
+  '70a0b001-1111-4111-8111-aaaaaaaa0001',
+  '70a0b002-2222-4222-8222-aaaaaaaa0002',
+  '70a0b003-3333-4333-8333-aaaaaaaa0003'
+);
+
+DELETE FROM public.user_profiles WHERE user_id IN (
+  '70a0b001-1111-4111-8111-aaaaaaaa0001',
+  '70a0b002-2222-4222-8222-aaaaaaaa0002',
+  '70a0b003-3333-4333-8333-aaaaaaaa0003'
+);
+
+DELETE FROM auth.auth_credentials WHERE user_id IN (
+  '70a0b001-1111-4111-8111-aaaaaaaa0001',
+  '70a0b002-2222-4222-8222-aaaaaaaa0002',
+  '70a0b003-3333-4333-8333-aaaaaaaa0003'
+);
+
+DELETE FROM auth.users WHERE id IN (
+  '70a0b001-1111-4111-8111-aaaaaaaa0001',
+  '70a0b002-2222-4222-8222-aaaaaaaa0002',
+  '70a0b003-3333-4333-8333-aaaaaaaa0003'
+);
+
+/* Optional: remove beta roles if you want a clean rollback for them, too
+DELETE FROM auth.roles WHERE name IN ('betauser','betaadmin');
+SELECT setval('auth.roles_id_seq', (SELECT COALESCE(MAX(id), 1) FROM auth.roles));
+*/
+    ]]></rollback>
+  </changeSet>
+
+</databaseChangeLog>

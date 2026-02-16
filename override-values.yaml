@@ -1,0 +1,43 @@
+# override-values.yaml
+
+image:
+  repository: gururepservice/kraken-auth
+  tag: latest
+  pullPolicy: Always
+
+ingress:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# Use an existing Secret for JWT_SECRET (recommended)
+security:
+  createSecret: false
+  existingSecret: kraken-auth-jwt
+  existingSecretKey: JWT_SECRET
+  # jwtSecret: ""   # not used when createSecret: false
+
+# (Optional) tweak if you want stricter limits/probes than chart defaults
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  readiness:
+    path: /health
+    initialDelaySeconds: 3
+    periodSeconds: 5
+    timeoutSeconds: 1
+    failureThreshold: 3

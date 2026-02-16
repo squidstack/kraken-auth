@@ -1,0 +1,202 @@
+code,name,restricted,can_ship
+AF,Afghanistan,true,false
+AL,Albania,false,true
+DZ,Algeria,false,true
+AS,American Samoa,true,false
+AD,Andorra,false,true
+AO,Angola,false,true
+AI,Anguilla,true,false
+AQ,Antarctica,true,false
+AG,Antigua and Barbuda,false,true
+AR,Argentina,false,true
+AM,Armenia,false,true
+AW,Aruba,false,true
+AU,Australia,false,true
+AT,Austria,false,true
+AZ,Azerbaijan,false,true
+BS,Bahamas,false,true
+BH,Bahrain,false,true
+BD,Bangladesh,false,true
+BB,Barbados,false,true
+BY,Belarus,false,true
+BE,Belgium,false,true
+BZ,Belize,false,true
+BJ,Benin,false,true
+BM,Bermuda,false,true
+BT,Bhutan,false,true
+BO,Bolivia,false,true
+BA,Bosnia and Herzegovina,false,true
+BW,Botswana,false,true
+BR,Brazil,false,true
+BN,Brunei,false,true
+BG,Bulgaria,false,true
+BF,Burkina Faso,false,true
+BI,Burundi,false,true
+KH,Cambodia,false,true
+CM,Cameroon,false,true
+CA,Canada,false,true
+CV,Cape Verde,false,true
+KY,Cayman Islands,false,true
+CF,Central African Republic,false,true
+TD,Chad,false,true
+CL,Chile,false,true
+CN,China,false,true
+CO,Colombia,false,true
+KM,Comoros,false,true
+CG,Congo,false,true
+CD,Congo (DRC),false,true
+CR,Costa Rica,false,true
+HR,Croatia,false,true
+CU,Cuba,true,false
+CY,Cyprus,false,true
+CZ,Czech Republic,false,true
+DK,Denmark,false,true
+DJ,Djibouti,false,true
+DM,Dominica,false,true
+DO,Dominican Republic,false,true
+EC,Ecuador,false,true
+EG,Egypt,false,true
+SV,El Salvador,false,true
+GQ,Equatorial Guinea,false,true
+ER,Eritrea,false,true
+EE,Estonia,false,true
+ET,Ethiopia,false,true
+FI,Finland,false,true
+FR,France,false,true
+GA,Gabon,false,true
+GM,Gambia,false,true
+GE,Georgia,false,true
+DE,Germany,false,true
+GH,Ghana,false,true
+GR,Greece,false,true
+GL,Greenland,false,true
+GD,Grenada,false,true
+GU,Guam,false,true
+GT,Guatemala,false,true
+GN,Guinea,false,true
+GW,Guinea-Bissau,false,true
+GY,Guyana,false,true
+HT,Haiti,false,true
+HN,Honduras,false,true
+HK,Hong Kong,false,true
+HU,Hungary,false,true
+IS,Iceland,false,true
+IN,India,false,true
+ID,Indonesia,false,true
+IR,Iran,true,false
+IQ,Iraq,true,false
+IE,Ireland,false,true
+IL,Israel,false,true
+IT,Italy,false,true
+JM,Jamaica,false,true
+JP,Japan,false,true
+JO,Jordan,false,true
+KZ,Kazakhstan,false,true
+KE,Kenya,false,true
+KI,Kiribati,false,true
+KP,North Korea,true,false
+KR,South Korea,false,true
+KW,Kuwait,false,true
+KG,Kyrgyzstan,false,true
+LA,Laos,false,true
+LV,Latvia,false,true
+LB,Lebanon,false,true
+LS,Lesotho,false,true
+LR,Liberia,false,true
+LY,Libya,true,false
+LI,Liechtenstein,false,true
+LT,Lithuania,false,true
+LU,Luxembourg,false,true
+MO,Macau,false,true
+MK,North Macedonia,false,true
+MG,Madagascar,false,true
+MW,Malawi,false,true
+MY,Malaysia,false,true
+MV,Maldives,false,true
+ML,Mali,false,true
+MT,Malta,false,true
+MH,Marshall Islands,false,true
+MR,Mauritania,false,true
+MU,Mauritius,false,true
+MX,Mexico,false,true
+FM,Micronesia,false,true
+MD,Moldova,false,true
+MC,Monaco,false,true
+MN,Mongolia,false,true
+ME,Montenegro,false,true
+MA,Morocco,false,true
+MZ,Mozambique,false,true
+MM,Myanmar,false,true
+NA,Namibia,false,true
+NR,Nauru,false,true
+NP,Nepal,false,true
+NL,Netherlands,false,true
+NZ,New Zealand,false,true
+NI,Nicaragua,false,true
+NE,Niger,false,true
+NG,Nigeria,false,true
+NO,Norway,false,true
+OM,Oman,false,true
+PK,Pakistan,false,true
+PW,Palau,false,true
+PA,Panama,false,true
+PG,Papua New Guinea,false,true
+PY,Paraguay,false,true
+PE,Peru,false,true
+PH,Philippines,false,true
+PL,Poland,false,true
+PT,Portugal,false,true
+QA,Qatar,false,true
+RO,Romania,false,true
+RU,Russia,false,true
+RW,Rwanda,false,true
+KN,Saint Kitts and Nevis,false,true
+LC,Saint Lucia,false,true
+VC,Saint Vincent,false,true
+WS,Samoa,false,true
+SM,San Marino,false,true
+ST,Sao Tome and Principe,false,true
+SA,Saudi Arabia,false,true
+SN,Senegal,false,true
+RS,Serbia,false,true
+SC,Seychelles,false,true
+SL,Sierra Leone,false,true
+SG,Singapore,false,true
+SK,Slovakia,false,true
+SI,Slovenia,false,true
+SB,Solomon Islands,false,true
+SO,Somalia,true,false
+ZA,South Africa,false,true
+ES,Spain,false,true
+LK,Sri Lanka,false,true
+SD,Sudan,true,false
+SR,Suriname,false,true
+SE,Sweden,false,true
+CH,Switzerland,false,true
+SY,Syria,true,false
+TW,Taiwan,false,true
+TJ,Tajikistan,false,true
+TZ,Tanzania,false,true
+TH,Thailand,false,true
+TL,Timor-Leste,false,true
+TG,Togo,false,true
+TO,Tonga,false,true
+TT,Trinidad and Tobago,false,true
+TN,Tunisia,false,true
+TR,Turkey,false,true
+TM,Turkmenistan,false,true
+TV,Tuvalu,false,true
+UG,Uganda,false,true
+UA,Ukraine,false,true
+AE,United Arab Emirates,false,true
+GB,United Kingdom,false,true
+US,United States,false,true
+UY,Uruguay,false,true
+UZ,Uzbekistan,false,true
+VU,Vanuatu,false,true
+VA,Vatican City,false,true
+VE,Venezuela,false,true
+VN,Vietnam,false,true
+YE,Yemen,true,false
+ZM,Zambia,false,true
+ZW,Zimbabwe,false,true
