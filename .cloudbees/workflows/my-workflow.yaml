@@ -13,8 +13,8 @@ permissions:
 env:
   APP_NAME: kraken-auth
   LANGUAGE: go
-  COVERAGE_ROOT: src
-  DEBUG: "true"  
+  COVERAGE_ROOT: .
+  DEBUG: "true"
 
 jobs:
   test:
@@ -22,7 +22,7 @@ jobs:
     with:
       app_name: kraken-auth
       language: go
-      coverage_root: src
+      coverage_root: .
       debug: "true"
       enable_smart_tests: "true"
     secrets: inherit
