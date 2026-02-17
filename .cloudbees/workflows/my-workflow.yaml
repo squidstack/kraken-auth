@@ -58,13 +58,13 @@ jobs:
     vars: inherit
 
 
-  deployPreProd:
+  deployInteg:
     if: ${{ cloudbees.scm.branch == 'main' }}
-    environment: squid-preprod
+    environment: integ
     uses: github.com/squidstack/squidstack/.cloudbees/workflows/deploy-generic.yaml@main
     needs: [test, build]
     with:
-      environment_name: squid-preprod
+      environment_name: integ
       component_name: kraken-auth
       docker_repo: ${{ vars.DOCKER_USER }}/kraken-auth
       uses_postgres: "true"
@@ -78,7 +78,7 @@ jobs:
 
   triggerRelease:
     if: false  # Disabled to avoid Unify rate limits - change to 'cloudbees.scm.branch == main' to enable
-    needs: [test, build, deployPreProd]
+    needs: [test, build, deployInteg]
     uses: github.com/squidstack/squidstack/.cloudbees/workflows/release-generic.yaml@main
     with:
       component_name: kraken-auth
