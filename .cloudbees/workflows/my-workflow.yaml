@@ -15,7 +15,7 @@ env:
   LANGUAGE: go
   COVERAGE_ROOT: .
   DEBUG: "true"
-  # Integration environment: squid-integ
+  # Deployment target: squid-integ
 
 jobs:
   test:
