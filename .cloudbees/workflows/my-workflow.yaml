@@ -60,11 +60,11 @@ jobs:
 
   deployInteg:
     if: ${{ cloudbees.scm.branch == 'main' }}
-    environment: integ
+    environment: squid-integ
     uses: github.com/squidstack/squidstack/.cloudbees/workflows/deploy-generic.yaml@main
     needs: [test, build]
     with:
-      environment_name: integ
+      environment_name: squid-integ
       component_name: kraken-auth
       docker_repo: ${{ vars.DOCKER_USER }}/kraken-auth
       uses_postgres: "true"
