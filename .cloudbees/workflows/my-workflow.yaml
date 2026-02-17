@@ -76,25 +76,6 @@ jobs:
     secrets: inherit
     vars: inherit
 
-  
-  deployProd:
-    if: ${{ cloudbees.scm.branch == 'main' }}
-    environment: squid-prod
-    uses: github.com/squidstack/squidstack/.cloudbees/workflows/deploy-generic.yaml@main
-    needs: [test, build, deployPreProd]
-    with:
-      environment_name: squid-prod
-      component_name: kraken-auth
-      docker_repo: ${{ vars.DOCKER_USER }}/kraken-auth
-      uses_postgres: "true"
-      uses_liquibase: "true"
-      artifact_id: ${{ needs.build.outputs.PRIMARY_ARTIFACT_ID }}
-      version: ${{ needs.build.outputs.VERSION }}
-      commit_sha: ${{ cloudbees.scm.sha }}
-      feature_flags_enabled: "true"
-    secrets: inherit
-    vars: inherit
-
   triggerRelease:
     if: false  # Disabled to avoid Unify rate limits - change to 'cloudbees.scm.branch == main' to enable
     needs: [test, build, deployPreProd]
